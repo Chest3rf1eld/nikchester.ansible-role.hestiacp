@@ -1,24 +1,38 @@
 ---
 # tasks file for hestiacp
-- name: "update and upgrade packages"
+
+- name: Install required utilities
+  package:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - wget
+    - curl
+    - gnupg
+    - unzip
+
+- name: Update and upgrade packages
   become: true
   apt:
     upgrade: yes
 
-- name: "get hestiacp install script"
+- name: Download HestiaCP installation script
   become: true
-  get_url: url=https://raw.githubusercontent.com/hestiacp/hestiacp/release/install/hst-install.sh dest=/root/hst-install.sh
+  get_url:
+    url: https://raw.githubusercontent.com/hestiacp/hestiacp/release/install/hst-install.sh
+    dest: /root/hst-install.sh
+    mode: '0755'
 
-- name: "start installation"
+- name: Run HestiaCP installation
   become: true
   command: "bash /root/hst-install.sh --interactive no --email {{ hestia_admin_mail }} --password {{ hestia_admin_pw }} --hostname {{ server_hostname }} --apache {{ hestia_install_flags.apache }} --phpfpm {{ hestia_install_flags.phpfpm }} --multiphp {{ hestia_install_flags.multiphp }} --vsftpd {{ hestia_install_flags.vsftpd }} --proftpd {{ hestia_install_flags.proftpd }} --named {{ hestia_install_flags.named }} --mysql {{ hestia_install_flags.mysql }} --postgresql {{ hestia_install_flags.postgresql }} --exim {{ hestia_install_flags.exim }} --dovecot {{ hestia_install_flags.dovecot }} --sieve {{ hestia_install_flags.sieve }} --clamav {{ hestia_install_flags.clamav }} --spamassassin {{ hestia_install_flags.spamassassin }} --iptables {{ hestia_install_flags.iptables }} --fail2ban {{ hestia_install_flags.fail2ban }} --quota {{ hestia_install_flags.quota }} --api {{ hestia_install_flags.api }} --port {{ hestia_install_flags.port }} --lang {{ hestia_install_flags.lang }} -f"
   async: '{{ hestia_timeout_install }}'
   poll: '{{ hestia_poll_interval_install }}'
-  args: 
+  args:
     creates: /usr/local/hestia
-  notify: reboot server
+  notify: Reboot server
 
-- name: "add additional PHP versions"
+- name: Install additional PHP versions
   become: true
   command: bash -l /usr/local/hestia/bin/v-add-web-php {{ item }}
   loop: "{{ hestia_additional_php }}"
@@ -26,7 +40,61 @@
     creates: /usr/bin/php{{ item }}
   when: hestia_install_flags.multiphp == 'no'
 
-- name: "add letsencrypt for {{ server_hostname }}"
+- name: Enable Let's Encrypt SSL for {{ server_hostname }}
   become: true
   command: bash -l /usr/local/hestia/bin/v-add-letsencrypt-host
   when: hestia_generate_ssl
+  args:
+    creates: /usr/local/hestia/ssl/certificate.crt
+
+- name: Create MySQL configuration file
+  copy:
+    src: "{{ mysql-conf }}"
+    dest: /etc/mysql/conf.d/00-mysql-default.cnf
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Restart MariaDB
+
+- name: Replace default package file with local version
+  copy:
+    src: "{{ package }}"
+    dest: /usr/local/hestia/data/packages/default.pkg
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Troubleshooting HestiaCP
+  block:
+    - name: Set ownership for phpMyAdmin directory
+      become: yes
+      file:
+        path: /etc/phpmyadmin
+        state: directory
+        owner: root
+        group: www-data
+        recurse: yes
+
+    - name: Set DefaultLimitNOFILE in systemd configuration
+      lineinfile:
+        path: /etc/systemd/system.conf
+        line: "DefaultLimitNOFILE=102400:524288"
+        state: present
+      notify: Reload systemd
+
+    - name: Add hard and soft nofile limits in security limits configuration
+      blockinfile:
+        path: /etc/security/limits.conf
+        block: |
+          *           hard    nofile     65535
+          *           soft    nofile     18192
+
+    - name: Set LimitNOFILE for Nginx service
+      lineinfile:
+        path: /lib/systemd/system/nginx.service
+        line: "LimitNOFILE=102400:524288"
+        state: present
+        insertafter: '[Service]'
+      notify:
+        - Reload systemd
+        - Restart Nginx

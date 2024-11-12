@@ -7,3 +7,17 @@
     pre_reboot_delay: 5
     post_reboot_delay: 30
     test_command: whoami
+
+- name: "restart mariadb"
+  service:
+    name: mariadb
+    state: restarted
+
+- name: "systemd reload"
+  command: systemctl daemon-reload
+  become: true
+
+- name: "restart nginx"
+  service:
+    name: nginx
+    state: restarted

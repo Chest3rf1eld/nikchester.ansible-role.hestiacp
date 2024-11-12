@@ -46,3 +46,10 @@ hestia_generate_ssl: false
 # timeout parameters for async install script task
 hestia_timeout_install: 1000
 hestia_poll_interval_install: 15
+
+# mysql
+mysql-conf: templates/mysql-configs-samples/16GB-RAM-my.cnf
+
+# admin package
+package: templates/default.pkg.j2
+package_backups: 1
