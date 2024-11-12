@@ -13,11 +13,18 @@
     name: mariadb
     state: restarted
 
-- name: "systemd reload"
-  command: systemctl daemon-reload
+- name: "restart systemd daemon"
   become: true
+  systemd:
+    daemon_reload: yes
 
 - name: "restart nginx"
   service:
     name: nginx
+    state: restarted
+
+- name: "restart apache"
+  become: true
+  service:
+    name: apache2
     state: restarted
