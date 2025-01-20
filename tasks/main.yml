@@ -30,7 +30,7 @@
   poll: '{{ hestia_poll_interval_install }}'
   args:
     creates: /usr/local/hestia
-  notify: Reboot server
+  notify: reboot server
 
 - name: Install additional PHP versions
   become: true

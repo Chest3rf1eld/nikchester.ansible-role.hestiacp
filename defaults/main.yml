@@ -12,7 +12,7 @@ hestia_admin_pw: P@ssword123
 # Install flags for hestiacp install script
 # values 'yes' or 'no'
 hestia_install_flags: 
-  apache: 'no'
+  apache: 'yes'
   phpfpm: 'yes'
   multiphp: 'no'
   vsftpd: 'yes'
@@ -48,7 +48,7 @@ hestia_timeout_install: 1000
 hestia_poll_interval_install: 15
 
 # configs
-mysql-conf: templates/mysql-configs-samples/16GB-RAM-my.cnf
+mysql-conf: templates/mysql-configs-samples/4GB-RAM-my.cnf
 bind-conf: templates/named.conf.options.j2
 
 # admin package
