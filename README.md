@@ -1,19 +1,17 @@
-Ansible Role HestiaCP
-=========
+# Ansible Role HestiaCP
 
-This ansible role in addition to installing HesiaCP allows you to:
-1. Select the configuration of services for HestiaCP
-2. Add the required php versions
-3. Create a hostname certificate
-4. Install one of the eight ready-made configs for MySQL (Configs by <a href="https://github.com/t0rik/mysql-configs-samples/tree/master">torik</a>)
-5. Install the advanced configuration for Bind (Named)
-5. Set which nameservers will be the default for each user
-6. Set the number of backups for each user
-7. Fixes some bugs of HestiaCP version 1.8.12 and below 
-And all this in one go. 
+This Ansible role, in addition to installing HestiaCP, provides the following features:
 
-Contents
------------
+1. **Service configuration selection**: Customize components such as Apache, PHP-FPM, MySQL, and install additional PHP versions (e.g., 7.4, 8.0, 8.1).
+2. **SSL certificate generation for hostname**: Automatically generate a certificate via LetsEncrypt.
+3. **Preconfigured MySQL setups**: Choose from eight predefined configurations for servers with varying memory sizes (configs by <a href="https://github.com/t0rik/mysql-configs-samples/tree/master">torik</a>).
+4. **Enhanced Bind (Named) configuration**: Optimize DNS settings for improved performance and stability.
+5. **Default nameservers setup**: Set default nameservers for all users.
+6. **Backup count configuration**: Define limits for the number of backups created per user.
+7. **Fixes for known HestiaCP issues**: Address problems in versions 1.8.12 and earlier.
+
+## Table of Contents
+
 - [Requirements](#requirements)
 - [Role Variables](#role-variables)
 - [Dependencies](#dependencies)
@@ -21,96 +19,94 @@ Contents
 - [License](#license)
 - [Author Information](#author-information)
 
-Requirements
-------------
-No special requirements.
+## Requirements
 
-The requirements for the hosts are like those of hestiacp. You can find the requirements for the hosts on <a href="https://www.hestiacp.com">the project homepage</a>.
+For this role, the recommended server specifications are:
 
-Role Variables
---------------
-Configurations as in defaults/main.yml
+- **CPU**: 2 cores
+- **RAM**: 2 GB
+- **Disk**: 20 GB of free space
 
-    ```
-    # server configs
-    # the hostname must already have been setup with an 'A' record
-    server_hostname: server.example.com
-    
-    # hestia admin configs
-    # recommended to put this into vaul.yml of host_vars or group_vars
-    # Initial details of hestiacp admin user
-    hestia_admin_mail: admin@example.com
-    hestia_admin_pw: P@ssword123
-    
-    # Install flags for hestiacp install script
-    # values 'yes' or 'no'
-    # “named” is a ‘bind’ service
-    hestia_install_flags:
-      apache: 'yes'
-      phpfpm: 'yes'
-      multiphp: 'no'
-      vsftpd: 'yes'
-      proftpd: 'no'
-      named: 'yes'
-      mysql: 'yes'
-      postgresql: 'no'
-      exim: 'no'
-      dovecot: 'no'
-      sieve: 'no'
-      clamav: 'no'
-      spamassassin: 'no'
-      iptables: 'yes'
-      fail2ban: 'yes'
-      quota: 'yes'
-      api: 'yes'
-      port: '8083'
-      lang: 'en'
-    
-    # Install additional php versions.
-    # Checks if it is already is installed, so you can list all desired php versions.
-    # Only gets installed when installer_flag is set to: --multiplephp no
-    hestia_additional_php:
-      - 7.4
-      - 8.0
-      - 8.1
-    
-    # Should hestia generate a letsencrypt cert for the hostname
-    hestia_generate_ssl: true
-    
-    # Timeout parameters for async install script task
-    hestia_timeout_install: 1000
-    hestia_poll_interval_install: 15
-    
-    # Configs
-    mysql_conf: templates/mysql-configs-samples/4GB-RAM-my.cnf
-    bind_conf: templates/named.conf.options.j2
-    
-    # Admin package
-    package: templates/default.pkg.j2
-    package_backups: 1
-    ns: ns1.example.com, ns2.example.com
-    ```
+You can find detailed requirements on the official [HestiaCP website](https://www.hestiacp.com).
 
-Dependencies
-------------
+## Role Variables
 
-None.
+Key settings are defined in the `defaults/main.yml` file:
 
-Example Playbook
-----------------
+```yaml
+# Server configurations
+# The hostname must already have an 'A' record configured
+server_hostname: server.example.com
 
-Nothing special when it comes to usage of this role. Make sure you have overwritten the variables of defaults/main.yml with your desired values.
+# Hestia admin configurations
+# It is recommended to store these details in a secure vault.yml
+hestia_admin_mail: "Your_Email"
+# Specify a unique and secure password. Including example passwords in documentation is not recommended.
+hestia_admin_pw: "Your_Secure_Password"
 
-    - hosts: servers
-      roles:
-         - { role: nikchester.ansible-role.hestiacp }
+# Installation flags for HestiaCP
+hestia_install_flags:
+  apache: 'yes'
+  phpfpm: 'yes'
+  multiphp: 'no'
+  vsftpd: 'yes'
+  proftpd: 'no'
+  named: 'yes'
+  mysql: 'yes'
+  postgresql: 'no'
+  exim: 'no'
+  dovecot: 'no'
+  sieve: 'no'
+  clamav: 'no'
+  spamassassin: 'no'
+  iptables: 'yes'
+  fail2ban: 'yes'
+  quota: 'yes'
+  api: 'yes'
+  port: '8083'
+  lang: 'en'
 
-License
--------
+# Additional PHP versions
+hestia_additional_php:
+  - 7.4
+  - 8.0
+  - 8.1
 
-The license of Hestia Control Panel applies. The Hestia Control Panel is licensed under GPL v3 license, and is based on the VestaCP project.
+# LetsEncrypt certificate generation
+hestia_generate_ssl: true
 
-Author Information
-------------------
+# Timeout settings for installation
+hestia_timeout_install: 1000
+hestia_poll_interval_install: 15
 
-This Ansible role was created in 2021 by Jitendra Bodmann and improved by Nikita Chaturov in 2025.
+# Configurations
+mysql_conf: templates/mysql-configs-samples/2GB-RAM-my.cnf # Available configurations for: 1, 2, 4, 8, 16, 32, 64, 128 GB
+bind_conf: templates/named.conf.options.j2
+
+# Admin package settings
+package: templates/default.pkg.j2
+package_backups: 1
+ns: ns1.example.com, ns2.example.com
+```
+
+## Dependencies
+
+The role has no external dependencies.
+
+## Example Playbook
+
+Using the role:
+
+```yaml
+- hosts: servers
+  roles:
+    - { role: nikchester.ansible-role.hestiacp }
+```
+
+## License
+
+The Hestia Control Panel is licensed under GPL v3 and is based on the VestaCP project.
+
+## Author Information
+
+This Ansible role was created in 2021 by Jitendra Bodmann and improved by Nikita Chaturov in 2025. If you have questions or suggestions, feel free to reach out via the project's GitHub.
