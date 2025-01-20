@@ -5,7 +5,7 @@ This ansible role in addition to installing HesiaCP allows you to:
 1. Select the configuration of services for HestiaCP
 2. Add the required php versions
 3. Create a hostname certificate
-4. Install one of the eight ready-made configs for MySQL (Configs by <a href="https://github.com/t0rik/mysql-configs-samples/tree/master">torik</a>
+4. Install one of the eight ready-made configs for MySQL (Configs by <a href="https://github.com/t0rik/mysql-configs-samples/tree/master">torik</a>)
 5. Install the advanced configuration for Bind (Named)
 5. Set which nameservers will be the default for each user
 6. Set the number of backups for each user
