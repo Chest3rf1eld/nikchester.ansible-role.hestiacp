@@ -51,7 +51,7 @@
   block:
     - name: Create MySQL configuration file
       copy:
-        src: "{{ mysql-conf }}"
+        src: "{{ mysql_conf }}"
         dest: /etc/mysql/conf.d/00-mysql-default.cnf
         owner: root
         group: root
@@ -68,7 +68,7 @@
 
     - name: Replacing bind config with corrected version
       copy:
-        src: "{{ bind-conf }}"
+        src: "{{ bind_conf }}"
         dest: /etc/bind/named.conf.options
         owner: root
         group: root
@@ -90,7 +90,7 @@
         path: /etc/systemd/system.conf
         line: "DefaultLimitNOFILE=102400:524288"
         state: present
-      notify: Reload systemd
+      notify: restart systemd daemon
 
     - name: Add hard and soft nofile limits in security limits configuration
       blockinfile:

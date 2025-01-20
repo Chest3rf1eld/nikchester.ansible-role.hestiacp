@@ -11,13 +11,14 @@ hestia_admin_pw: P@ssword123
 
 # Install flags for hestiacp install script
 # values 'yes' or 'no'
+# “named” is a ‘bind’ service
 hestia_install_flags: 
   apache: 'yes'
   phpfpm: 'yes'
   multiphp: 'no'
   vsftpd: 'yes'
   proftpd: 'no'
-  named: 'no'
+  named: 'yes'
   mysql: 'yes'
   postgresql: 'no'
   exim: 'no'
@@ -40,18 +41,18 @@ hestia_additional_php:
   - 8.0
   - 8.1
 
-# should hestia generate a letsencrypt cert for the hostname
-hestia_generate_ssl: false
+# Should hestia generate a letsencrypt cert for the hostname
+hestia_generate_ssl: true
 
-# timeout parameters for async install script task
+# Timeout parameters for async install script task
 hestia_timeout_install: 1000
 hestia_poll_interval_install: 15
 
-# configs
-mysql-conf: templates/mysql-configs-samples/4GB-RAM-my.cnf
-bind-conf: templates/named.conf.options.j2
+# Configs
+mysql_conf: templates/mysql-configs-samples/4GB-RAM-my.cnf
+bind_conf: templates/named.conf.options.j2
 
-# admin package
+# Admin package
 package: templates/default.pkg.j2
 package_backups: 1
-
+ns: ns1.example.com, ns2.example.com
