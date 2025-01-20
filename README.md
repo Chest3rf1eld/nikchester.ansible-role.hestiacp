@@ -113,4 +113,4 @@ The license of Hestia Control Panel applies. The Hestia Control Panel is license
 Author Information
 ------------------
 
-This Ansible role was created in 2021 by <a href=“https://github.com/jeazyee”>Jitendra Bodmann</a>, owner of <a href=“https://www.wedima.de”>wedima</a> and improved by Nikita Chaturov.
+This Ansible role was created in 2021 by Jitendra Bodmann and improved by Nikita Chaturov in 2025.
