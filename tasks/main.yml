@@ -23,14 +23,28 @@
     dest: /root/hst-install.sh
     mode: '0755'
 
-- name: Run HestiaCP installation
-  become: true
-  command: "bash /root/hst-install.sh --interactive no --email {{ hestia_admin_mail }} --password {{ hestia_admin_pw }} --hostname {{ server_hostname }} --apache {{ hestia_install_flags.apache }} --phpfpm {{ hestia_install_flags.phpfpm }} --multiphp {{ hestia_install_flags.multiphp }} --vsftpd {{ hestia_install_flags.vsftpd }} --proftpd {{ hestia_install_flags.proftpd }} --named {{ hestia_install_flags.named }} --mysql {{ hestia_install_flags.mysql }} --postgresql {{ hestia_install_flags.postgresql }} --exim {{ hestia_install_flags.exim }} --dovecot {{ hestia_install_flags.dovecot }} --sieve {{ hestia_install_flags.sieve }} --clamav {{ hestia_install_flags.clamav }} --spamassassin {{ hestia_install_flags.spamassassin }} --iptables {{ hestia_install_flags.iptables }} --fail2ban {{ hestia_install_flags.fail2ban }} --quota {{ hestia_install_flags.quota }} --api {{ hestia_install_flags.api }} --port {{ hestia_install_flags.port }} --lang {{ hestia_install_flags.lang }} -f"
-  async: '{{ hestia_timeout_install }}'
-  poll: '{{ hestia_poll_interval_install }}'
-  args:
-    creates: /usr/local/hestia
-  notify: reboot server
+- block:
+  - name: Run HestiaCP installation
+    become: true
+    command: "bash /root/hst-install.sh --interactive no --email {{ hestia_admin_mail }} --password {{ hestia_admin_pw }} --hostname {{ server_hostname }} --apache {{ hestia_install_flags.apache }} --phpfpm {{ hestia_install_flags.phpfpm }} --multiphp {{ hestia_install_flags.multiphp }} --vsftpd {{ hestia_install_flags.vsftpd }} --proftpd {{ hestia_install_flags.proftpd }} --named {{ hestia_install_flags.named }} --mysql {{ hestia_install_flags.mysql }} --postgresql {{ hestia_install_flags.postgresql }} --exim {{ hestia_install_flags.exim }} --dovecot {{ hestia_install_flags.dovecot }} --sieve {{ hestia_install_flags.sieve }} --clamav {{ hestia_install_flags.clamav }} --spamassassin {{ hestia_install_flags.spamassassin }} --iptables {{ hestia_install_flags.iptables }} --fail2ban {{ hestia_install_flags.fail2ban }} --quota {{ hestia_install_flags.quota }} --api {{ hestia_install_flags.api }} --port {{ hestia_install_flags.port }} --lang {{ hestia_install_flags.lang }} -f"
+    async: '{{ hestia_timeout_install }}'
+    poll: '{{ hestia_poll_interval_install }}'
+    args:
+      creates: /usr/local/hestia
+    notify: reboot server
+
+  - name: Immediately reboot server
+    meta: flush_handlers
+
+  - name: Check if server is up
+    wait_for_connection:
+      timeout: 300
+      delay: 15
+
+  rescue:
+    - name: Log error if server doesn't come up
+      debug:
+        msg: "Server failed to reboot properly."
 
 - name: Install additional PHP versions
   become: true

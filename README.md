@@ -26,6 +26,7 @@ For this role, the recommended server specifications are:
 - **CPU**: 2 cores
 - **RAM**: 2 GB
 - **Disk**: 20 GB of free space
+- **OS**: Ubuntu 22.04.5
 
 You can find detailed requirements on the official [HestiaCP website](https://www.hestiacp.com).
 
