@@ -10,8 +10,6 @@ This Ansible role, in addition to installing HestiaCP, provides the following fe
 6. **Backup Count Configuration**: Define limits for the number of backups created per user.
 7. **Fixes for Known HestiaCP Issues**: Address problems in versions 1.8.12 and earlier.
 
----
-
 ## Table of Contents
 
 - [Requirements](#requirements)
@@ -21,8 +19,6 @@ This Ansible role, in addition to installing HestiaCP, provides the following fe
 - [Example Playbook](#example-playbook)
 - [License](#license)
 - [Author Information](#author-information)
-
----
 
 ## Requirements
 
@@ -34,8 +30,6 @@ For this role, the recommended server specifications are:
 - **OS**: Ubuntu 22.04.5
 
 You can find detailed requirements on the official [HestiaCP website](https://www.hestiacp.com).
-
----
 
 ## Role Variables
 
@@ -97,8 +91,6 @@ package_backups: 1
 ns: ns1.example.com, ns2.example.com
 ```
 
----
-
 ## Variable Validation
 
 Before executing the role, a built-in mechanism ensures that all required variables are properly defined and meet the expected criteria. This includes:
@@ -111,13 +103,9 @@ Before executing the role, a built-in mechanism ensures that all required variab
 
 If any variable fails validation, the role stops execution and provides an informative error message.
 
----
-
 ## Dependencies
 
 The role has no external dependencies.
-
----
 
 ## Example Playbook
 
@@ -129,13 +117,9 @@ Using the role:
     - { role: nikchester.ansible-role.hestiacp }
 ```
 
----
-
 ## License
 
 The Hestia Control Panel is licensed under GPL v3 and is based on the VestaCP project.
-
----
 
 ## Author Information
 
