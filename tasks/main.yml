@@ -1,6 +1,46 @@
 ---
 # tasks file for hestiacp
 
+- name: Display all variables and ask for confirmation
+  block:
+    - name: Display variables
+      debug:
+        msg:
+          - "Server hostname: {{ server_hostname }}"
+          - "Admin email: {{ hestia_admin_mail }}"
+          - "Admin password: {{ hestia_admin_pw }}"
+          - "Install flags: {{ hestia_install_flags }}"
+          - "Additional PHP versions: {{ hestia_additional_php }}"
+          - "Generate SSL for hostname: {{ hestia_generate_ssl }}"
+          - "MySQL config: {{ mysql_conf }}"
+          - "Bind config: {{ bind_conf }}"
+          - "Admin package: {{ package }}"
+          - "Backup limit: {{ package_backups }}"
+          - "Nameservers: {{ ns }}"
+
+    - name: Confirm to proceed with role execution
+      pause:
+        prompt: "Please review the above variables. Type 'yes' to proceed or 'no' to abort."
+      register: user_input
+
+    - name: Debug user input
+      debug:
+        var: user_input.user_input
+
+    - name: Check user confirmation
+      ansible.builtin.assert:
+        that:
+          - user_input.user_input | default('') | lower == 'yes'
+        fail_msg: "Execution aborted by user."
+
+  rescue:
+    - name: Log that execution was aborted
+      debug:
+        msg: "User chose to abort execution of the role."
+
+    - name: Stop play execution on user abort
+      meta: end_play
+
 - name: Install required utilities
   package:
     name: "{{ item }}"
