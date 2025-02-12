@@ -1,3 +1,0 @@
-[submodule "templates/mysql-configs-samples"]
-	path = templates/mysql-configs-samples
-	url = git@github.com:t0rik/mysql-configs-samples.git
