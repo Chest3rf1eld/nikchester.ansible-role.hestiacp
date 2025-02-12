@@ -1,46 +1,6 @@
 ---
 # tasks file for hestiacp
 
-- name: Display all variables and ask for confirmation
-  block:
-    - name: Display variables
-      debug:
-        msg:
-          - "Server hostname: {{ server_hostname }}"
-          - "Admin email: {{ hestia_admin_mail }}"
-          - "Admin password: {{ hestia_admin_pw }}"
-          - "Install flags: {{ hestia_install_flags }}"
-          - "Additional PHP versions: {{ hestia_additional_php }}"
-          - "Generate SSL for hostname: {{ hestia_generate_ssl }}"
-          - "MySQL config: {{ mysql_conf }}"
-          - "Bind config: {{ bind_conf }}"
-          - "Admin package: {{ package }}"
-          - "Backup limit: {{ package_backups }}"
-          - "Nameservers: {{ ns }}"
-
-    - name: Confirm to proceed with role execution
-      pause:
-        prompt: "Please review the above variables. Type 'yes' to proceed or 'no' to abort."
-      register: user_input
-
-    - name: Debug user input
-      debug:
-        var: user_input.user_input
-
-    - name: Check user confirmation
-      ansible.builtin.assert:
-        that:
-          - user_input.user_input | default('') | lower == 'yes'
-        fail_msg: "Execution aborted by user."
-
-  rescue:
-    - name: Log that execution was aborted
-      debug:
-        msg: "User chose to abort execution of the role."
-
-    - name: Stop play execution on user abort
-      meta: end_play
-
 - name: Install required utilities
   package:
     name: "{{ item }}"
@@ -66,7 +26,7 @@
 - block:
   - name: Run HestiaCP installation
     become: true
-    command: "bash /root/hst-install.sh --interactive no --email {{ hestia_admin_mail }} --password {{ hestia_admin_pw }} --hostname {{ server_hostname }} --apache {{ hestia_install_flags.apache }} --phpfpm {{ hestia_install_flags.phpfpm }} --multiphp {{ hestia_install_flags.multiphp }} --vsftpd {{ hestia_install_flags.vsftpd }} --proftpd {{ hestia_install_flags.proftpd }} --named {{ hestia_install_flags.named }} --mysql {{ hestia_install_flags.mysql }} --postgresql {{ hestia_install_flags.postgresql }} --exim {{ hestia_install_flags.exim }} --dovecot {{ hestia_install_flags.dovecot }} --sieve {{ hestia_install_flags.sieve }} --clamav {{ hestia_install_flags.clamav }} --spamassassin {{ hestia_install_flags.spamassassin }} --iptables {{ hestia_install_flags.iptables }} --fail2ban {{ hestia_install_flags.fail2ban }} --quota {{ hestia_install_flags.quota }} --api {{ hestia_install_flags.api }} --port {{ hestia_install_flags.port }} --lang {{ hestia_install_flags.lang }} -f"
+    command: "bash /root/hst-install.sh --interactive no --username {{ hestia_admin_username }} --email {{ hestia_admin_mail }} --password {{ hestia_admin_pw }} --hostname {{ server_hostname }} --apache {{ hestia_install_flags.apache }} --phpfpm {{ hestia_install_flags.phpfpm }} --multiphp {{ hestia_install_flags.multiphp }} --vsftpd {{ hestia_install_flags.vsftpd }} --proftpd {{ hestia_install_flags.proftpd }} --named {{ hestia_install_flags.named }} --mysql {{ hestia_install_flags.mysql }} --postgresql {{ hestia_install_flags.postgresql }} --exim {{ hestia_install_flags.exim }} --dovecot {{ hestia_install_flags.dovecot }} --sieve {{ hestia_install_flags.sieve }} --clamav {{ hestia_install_flags.clamav }} --spamassassin {{ hestia_install_flags.spamassassin }} --iptables {{ hestia_install_flags.iptables }} --fail2ban {{ hestia_install_flags.fail2ban }} --quota {{ hestia_install_flags.quota }} --api {{ hestia_install_flags.api }} --port {{ hestia_install_flags.port }} --lang {{ hestia_install_flags.lang }} -f"
     async: '{{ hestia_timeout_install }}'
     poll: '{{ hestia_poll_interval_install }}'
     args:
@@ -97,7 +57,7 @@
 - name: Enable Let's Encrypt SSL for {{ server_hostname }}
   become: true
   command: bash -l /usr/local/hestia/bin/v-add-letsencrypt-host
-  when: hestia_generate_ssl
+  when: hestia_generate_ssl == "yes"
   args:
     creates: /usr/local/hestia/ssl/certificate.crt
 
